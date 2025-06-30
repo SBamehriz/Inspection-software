@@ -1,0 +1,20 @@
+Astora App Project – Inspection Process Automation
+
+Astora is a used phone exportation LLC that purchases, inspects, and resells used phones overseas. We are developing a web-based application to streamline and enhance our inspection process, making it faster, more reliable, and user-friendly.
+
+The inspection workflow will be divided into two station types:
+
+Scanning Station:
+At this station, inspectors will scan the phone’s IMEI number and document any defects or issues. The app will automatically retrieve the phone’s specifications (e.g., model, features) and instantly save all information to the cloud (DigitalOcean Spaces).
+
+Photographing Station:
+After scanning, the phone is sent to the photographing station. Inspectors will rescan the IMEI to link the phone with its previously saved data, then upload high-quality images. These images will be stored in DigitalOcean Spaces, which will generate secure image links. These links will be embedded in the final report to save storage space while allowing quick access to the images.
+
+At the beginning of the inspection process, the user must enter an order number. This ensures that all subsequent inspections are grouped under that specific order. This structure allows each inspection to belong to a particular shipment or batch, making organization and tracking more efficient. Users should also be able to revisit and review previous inspections by searching for or selecting a past order number.
+
+Before accessing the inspection system, users should be required to go through a sign-in page. This ensures access control and provides user-specific tracking for accountability and security.
+
+The entire process will be managed through a centralized web platform connected to a cloud database. At the end of each inspection, the system will use Pandas (a Python data analysis library) to generate an Excel report containing all inspection data and image links. These reports should also be stored in DigitalOcean Spaces for easy access, backup, and sharing.
+
+Important Note on Code Structure:
+To make development and maintenance easier, the codebase should be structured in a simple and clean way with as few files as reasonably possible, without compromising the performance, scalability, or quality of the application. The goal is to keep the file structure easy to understand, move between editors, and maintain—even for someone without deep technical experience.
