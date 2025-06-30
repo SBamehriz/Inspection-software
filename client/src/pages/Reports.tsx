@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, FileSpreadsheet, Eye, Download, CheckCircle, Clock } from "lucide-react";
+import { ArrowLeft, FileSpreadsheet, Download, CheckCircle, Clock, BarChart3 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -14,9 +11,6 @@ import { useLocation } from "wouter";
 
 export default function Reports() {
   const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [gradeFilter, setGradeFilter] = useState("");
   const { toast } = useToast();
 
   // Fetch orders from API
@@ -58,41 +52,6 @@ export default function Reports() {
       });
     },
   });
-
-  const handleSearch = () => {
-    // TODO: Implement search functionality with API
-    toast({
-      title: "Search",
-      description: "Search functionality will be implemented with backend integration.",
-    });
-  };
-
-  const handleGenerateExcel = () => {
-    // Generate report for the first completed order as example
-    const completedOrder = orders.find((order: any) => order.status === "completed");
-    if (completedOrder) {
-      generateExcelReport.mutate(completedOrder.id);
-    } else {
-      toast({
-        title: "No Completed Orders",
-        description: "Complete at least one order to generate reports.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleViewOrder = (orderNumber: string) => {
-    toast({
-      title: "View Order",
-      description: `Viewing details for ${orderNumber}`,
-    });
-  };
-
-  const handleContinueOrder = (orderNumber: string) => {
-    // Store order number in localStorage for station selection
-    localStorage.setItem("currentOrderNumber", orderNumber);
-    setLocation("/station-selection");
-  };
 
   const getStatusBadge = (status: string) => {
     if (status === "completed") {
@@ -145,67 +104,62 @@ export default function Reports() {
           </Button>
         </div>
         
-        {/* Search and Filter */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Orders
-                </Label>
-                <Input
-                  id="search"
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full focus:ring-astora-red focus:border-transparent"
-                  placeholder="Order number or IMEI"
-                />
+        {/* Order Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                  <p className="text-2xl font-bold text-astora-black">{orders.length}</p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-astora-red" />
               </div>
-              
-              <div>
-                <Label htmlFor="dateFrom" className="block text-sm font-medium text-gray-700 mb-2">
-                  Date Range
-                </Label>
-                <Input
-                  id="dateFrom"
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-full focus:ring-astora-red focus:border-transparent"
-                />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Orders</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {orders.filter((order: any) => order.status === 'active').length}
+                  </p>
+                </div>
+                <Clock className="h-8 w-8 text-yellow-500" />
               </div>
-              
-              <div>
-                <Label htmlFor="gradeFilter" className="block text-sm font-medium text-gray-700 mb-2">
-                  Grade Filter
-                </Label>
-                <Select value={gradeFilter} onValueChange={setGradeFilter}>
-                  <SelectTrigger className="w-full focus:ring-astora-red">
-                    <SelectValue placeholder="All Grades" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Grades</SelectItem>
-                    <SelectItem value="A">Grade A</SelectItem>
-                    <SelectItem value="B">Grade B</SelectItem>
-                    <SelectItem value="C">Grade C</SelectItem>
-                    <SelectItem value="D">Grade D</SelectItem>
-                  </SelectContent>
-                </Select>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Completed Orders</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {orders.filter((order: any) => order.status === 'completed').length}
+                  </p>
+                </div>
+                <CheckCircle className="h-8 w-8 text-green-500" />
               </div>
-              
-              <div className="flex items-end">
-                <Button
-                  onClick={handleSearch}
-                  className="w-full bg-astora-red hover:bg-astora-dark-red text-white"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Search
-                </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Phones</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {orders.reduce((sum: number, order: any) => sum + (order.expectedQuantity || 0), 0)}
+                  </p>
+                </div>
+                <FileSpreadsheet className="h-8 w-8 text-blue-500" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
         
         {/* Reports Table */}
         <Card>
@@ -228,10 +182,8 @@ export default function Reports() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Total Phones</TableHead>
-                    <TableHead>Grade Distribution</TableHead>
+                    <TableHead>Order Details</TableHead>
+                    <TableHead>Created Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -239,13 +191,13 @@ export default function Reports() {
                 <TableBody>
                   {ordersLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={4} className="text-center py-8">
                         Loading orders...
                       </TableCell>
                     </TableRow>
                   ) : orders.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={4} className="text-center py-8">
                         No orders found. Create your first order to see reports here.
                       </TableCell>
                     </TableRow>
@@ -255,64 +207,26 @@ export default function Reports() {
                         <TableCell>
                           <div>
                             <div className="font-medium text-gray-900">{order.orderNumber}</div>
-                            <div className="text-sm text-gray-500">Inspector: {user?.username || 'Unknown'}</div>
+                            <div className="text-sm text-gray-500">{order.description}</div>
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-gray-900">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-900">
-                          {order.status === "completed" 
-                            ? `${order.completedQuantity || 0} phones`
-                            : `0/${order.expectedQuantity} phones`
-                          }
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            <Badge className="bg-gray-100 text-gray-800">
-                              No inspections yet
-                            </Badge>
-                          </div>
-                        </TableCell>
                         <TableCell>
                           {getStatusBadge(order.status)}
                         </TableCell>
                         <TableCell>
-                          <div className="flex space-x-2">
-                            {order.status === "completed" ? (
-                              <>
-                                <Button
-                                  onClick={() => handleViewOrder(order.orderNumber)}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-astora-red hover:text-astora-dark-red hover:bg-red-50"
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  View
-                                </Button>
-                                <Button
-                                  onClick={() => generateExcelReport.mutate(order.id)}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                  disabled={generateExcelReport.isPending}
-                                >
-                                  <Download className="w-4 h-4 mr-1" />
-                                  Export
-                                </Button>
-                              </>
-                            ) : (
-                              <Button
-                                onClick={() => handleContinueOrder(order.orderNumber)}
-                                variant="ghost"
-                                size="sm"
-                                className="text-astora-red hover:text-astora-dark-red hover:bg-red-50"
-                              >
-                                <Eye className="w-4 h-4 mr-1" />
-                                Continue
-                              </Button>
-                            )}
-                          </div>
+                          <Button
+                            onClick={() => generateExcelReport.mutate(order.id)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                            disabled={generateExcelReport.isPending}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Generate Report
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))

@@ -136,6 +136,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update order
+  app.put("/api/orders/:id", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      // Validate order number format (exactly 12 digits)
+      if (updateData.orderNumber && !updateData.orderNumber.match(/^\d{12}$/)) {
+        return res.status(400).json({ message: "Order number must be exactly 12 digits" });
+      }
+      
+      await storage.updateOrder(orderId, updateData);
+      res.json({ message: "Order updated successfully" });
+    } catch (error) {
+      console.error("Update order error:", error);
+      res.status(500).json({ message: "Failed to update order" });
+    }
+  });
+
   // IMEI lookup
   app.get("/api/imei/:imei", requireAuth, async (req: Request, res: Response) => {
     try {
@@ -151,6 +170,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/inspections", requireAuth, async (req: any, res) => {
     try {
       const inspectionData = insertInspectionSchema.parse(req.body);
+      
+      // Check if IMEI already exists for this order
+      const existingInspection = await storage.getInspectionByImei(inspectionData.imei, inspectionData.orderId);
+      if (existingInspection) {
+        return res.status(400).json({ 
+          message: "IMEI already exists for this order",
+          existingInspection 
+        });
+      }
+      
       const inspection = await storage.createInspection({
         ...inspectionData,
         inspectorId: req.session.userId

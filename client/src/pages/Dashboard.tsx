@@ -1,35 +1,29 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Play, BarChart3, CheckCircle, Clock } from "lucide-react";
+import { Plus, History, BarChart3, CheckCircle, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import OrderEntryModal from "@/components/OrderEntryModal";
 import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const [showOrderEntry, setShowOrderEntry] = useState(false);
 
   const { data: recentOrders, isLoading } = useQuery({
     queryKey: ["/api/orders/recent"],
   });
 
   const handleNewOrder = () => {
-    setShowOrderEntry(true);
+    setLocation("/new-order");
   };
 
-  const handleContinueOrder = () => {
-    setLocation("/reports");
+  const handlePastOrders = () => {
+    setLocation("/past-orders");
   };
 
   const handleViewReports = () => {
     setLocation("/reports");
   };
 
-  const handleOrderCreated = () => {
-    setShowOrderEntry(false);
-    setLocation("/station-selection");
-  };
+
 
   return (
     <div className="container mx-auto p-6">
@@ -53,20 +47,20 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card className="border-l-4 border-gray-500">
+        <Card className="border-l-4 border-yellow-500">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">Continue Order</h3>
-                <p className="text-gray-600 text-sm">Resume existing order</p>
+                <h3 className="text-lg font-semibold text-gray-800">Past Orders</h3>
+                <p className="text-gray-600 text-sm">View and edit existing orders</p>
               </div>
-              <Play className="text-gray-500 text-2xl" />
+              <History className="text-yellow-500 text-2xl" />
             </div>
             <Button 
-              onClick={handleContinueOrder}
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white"
+              onClick={handlePastOrders}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
             >
-              Continue
+              Past Orders
             </Button>
           </CardContent>
         </Card>
@@ -137,12 +131,6 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
-
-      <OrderEntryModal 
-        isOpen={showOrderEntry}
-        onClose={() => setShowOrderEntry(false)}
-        onOrderCreated={handleOrderCreated}
-      />
     </div>
   );
 }

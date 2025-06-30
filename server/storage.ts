@@ -14,6 +14,7 @@ export interface IStorage {
   getOrderByNumber(orderNumber: string): Promise<Order | undefined>;
   getRecentOrders(limit?: number): Promise<Order[]>;
   updateOrderStatus(id: number, status: string): Promise<void>;
+  updateOrder(id: number, updateData: Partial<InsertOrder & { orderNumber: string }>): Promise<void>;
   
   // Inspection operations
   createInspection(inspection: InsertInspection & { inspectorId: number }): Promise<Inspection>;
@@ -47,7 +48,8 @@ export class DatabaseStorage implements IStorage {
 
   // Order operations
   async createOrder(orderData: InsertOrder & { createdBy: number }): Promise<Order> {
-    const orderNumber = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
+    // Generate exactly 12 digit order number
+    const orderNumber = Math.floor(100000000000 + Math.random() * 900000000000).toString();
     const [order] = await db
       .insert(orders)
       .values({
@@ -77,6 +79,10 @@ export class DatabaseStorage implements IStorage {
     if (status === "completed") {
       updateData.completedAt = new Date();
     }
+    await db.update(orders).set(updateData).where(eq(orders.id, id));
+  }
+
+  async updateOrder(id: number, updateData: Partial<InsertOrder & { orderNumber: string }>): Promise<void> {
     await db.update(orders).set(updateData).where(eq(orders.id, id));
   }
 

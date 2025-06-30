@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./lib/auth";
 import SignIn from "@/pages/SignIn";
 import Dashboard from "@/pages/Dashboard";
+import NewOrder from "@/pages/NewOrder";
+import PastOrders from "@/pages/PastOrders";
 import StationSelection from "@/pages/StationSelection";
 import ScanningStation from "@/pages/ScanningStation";
 import PhotographingStation from "@/pages/PhotographingStation";
@@ -33,10 +35,12 @@ function Router() {
       <Navigation user={user} />
       <Switch>
         <Route path="/" component={Dashboard} />
+        <Route path="/new-order" component={NewOrder} />
+        <Route path="/past-orders" component={PastOrders} />
+        <Route path="/reports" component={Reports} />
         <Route path="/station-selection" component={StationSelection} />
         <Route path="/scanning" component={ScanningStation} />
         <Route path="/photographing" component={PhotographingStation} />
-        <Route path="/reports" component={Reports} />
         <Route component={NotFound} />
       </Switch>
     </div>
