@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 0%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 0%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 0%);
+  --border: hsl(0, 0%, 89%);
+  --input: hsl(0, 0%, 89%);
+  --primary: hsl(0, 84%, 55%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 9%);
+  --accent: hsl(0, 0%, 96%);
+  --accent-foreground: hsl(0, 0%, 9%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 84%, 55%);
+  --radius: 0.5rem;
+  
+  /* Astora custom colors */
+  --astora-red: hsl(0, 84%, 55%);
+  --astora-dark-red: hsl(0, 85%, 45%);
+  --astora-black: hsl(0, 0%, 0%);
+  --astora-gray: hsl(210, 20%, 15%);
+  --astora-light-gray: hsl(210, 17%, 96%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(0, 0%, 65%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(0, 0%, 0%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(0, 0%, 15%);
+  --input: hsl(0, 0%, 15%);
+  --primary: hsl(0, 84%, 55%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 15%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(0, 0%, 15%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62%, 31%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 84%, 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .astora-red {
+    color: var(--astora-red);
+  }
+  
+  .bg-astora-red {
+    background-color: var(--astora-red);
+  }
+  
+  .border-astora-red {
+    border-color: var(--astora-red);
+  }
+  
+  .astora-black {
+    color: var(--astora-black);
+  }
+  
+  .bg-astora-black {
+    background-color: var(--astora-black);
+  }
+  
+  .astora-gradient {
+    background: linear-gradient(135deg, var(--astora-black) 0%, var(--astora-gray) 100%);
+  }
+}
