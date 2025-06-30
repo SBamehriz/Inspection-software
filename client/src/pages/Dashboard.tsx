@@ -19,8 +19,7 @@ export default function Dashboard() {
   };
 
   const handleContinueOrder = () => {
-    // TODO: Implement order search/selection
-    alert("Order search functionality will be implemented");
+    setLocation("/reports");
   };
 
   const handleViewReports = () => {

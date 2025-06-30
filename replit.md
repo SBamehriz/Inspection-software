@@ -112,6 +112,7 @@ The application follows a full-stack architecture with a React frontend, Express
 ## Changelog
 - June 30, 2025. Initial setup
 - June 30, 2025. Fixed authentication system - test user credentials working (inspector/password)
+- June 30, 2025. Fixed Continue Order workflow - Dashboard button now routes to Reports page, removed runtime errors
 
 ## User Preferences
 

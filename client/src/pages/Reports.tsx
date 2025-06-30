@@ -69,9 +69,15 @@ export default function Reports() {
 
   const handleGenerateExcel = () => {
     // Generate report for the first completed order as example
-    const completedOrder = mockReports.find(r => r.status === "completed");
+    const completedOrder = orders.find((order: any) => order.status === "completed");
     if (completedOrder) {
       generateExcelReport.mutate(completedOrder.id);
+    } else {
+      toast({
+        title: "No Completed Orders",
+        description: "Complete at least one order to generate reports.",
+        variant: "destructive",
+      });
     }
   };
 
