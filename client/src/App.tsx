@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "./lib/auth";
 import SignIn from "@/pages/SignIn";
+import SignUp from "@/pages/SignUp";
 import Dashboard from "@/pages/Dashboard";
 import NewOrder from "@/pages/NewOrder";
 import PastOrders from "@/pages/PastOrders";
@@ -27,7 +28,12 @@ function Router() {
   }
 
   if (!user) {
-    return <SignIn />;
+    return (
+    <Switch>
+      <Route path="/signup" component={SignUp} />
+      <Route path="/" component={SignIn} />
+    </Switch>
+    );
   }
 
   return (

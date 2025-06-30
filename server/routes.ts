@@ -38,6 +38,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
   }));
 
+  // Sign up
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const existing = await storage.getUserByUsername(username);
+      if (existing) {
+        return res.status(409).json({ message: "User exists" });
+      }
+      const hash = await bcrypt.hash(password, 10);
+      const user = await storage.createUser({ username, password: hash });
+      return res.json({ id: user.id, username: user.username });
+    } catch (err) {
+      console.error("Signup error:", err);
+      return res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+
   // Auth middleware
   const requireAuth = (req: Request & { session: any }, res: Response, next: NextFunction) => {
     if (!req.session.userId) {

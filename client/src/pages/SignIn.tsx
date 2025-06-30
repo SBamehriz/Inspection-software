@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,6 +90,14 @@ export default function SignIn() {
               {signIn.isPending ? "Signing In..." : "Sign In"}
             </Button>
           </form>
+          
+          <p className="mt-4 text-center text-sm">
+            Don’t have an account?{" "}
+            <Link href="/signup" className="text-astora-red hover:underline">
+            Sign Up
+            </Link>
+            </p>
+
         </CardContent>
       </Card>
     </div>
