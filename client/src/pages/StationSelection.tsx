@@ -1,12 +1,36 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Camera, Check } from "lucide-react";
+import { QrCode, Camera, Check, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function StationSelection() {
   const [, setLocation] = useLocation();
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
+
+  // Check for existing order from localStorage
+  useEffect(() => {
+    const orderNumber = localStorage.getItem("currentOrderNumber");
+    if (orderNumber) {
+      // Fetch order details to show current context
+      fetch(`/api/orders/${orderNumber}`, {
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(order => setCurrentOrder(order))
+      .catch(err => {
+        console.error("Failed to load order:", err);
+        localStorage.removeItem("currentOrderNumber");
+      });
+    }
+  }, []);
 
   const selectStation = (station: "scanning" | "photographing") => {
+    // Store the selected station for context
+    if (currentOrder) {
+      localStorage.setItem("currentOrderId", currentOrder.id.toString());
+    }
     setLocation(`/${station}`);
   };
 

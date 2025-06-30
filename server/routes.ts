@@ -220,12 +220,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get inspections by order
+  app.get("/api/orders/:orderId/inspections", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const inspections = await storage.getInspectionsByOrder(parseInt(req.params.orderId));
+      res.json(inspections);
+    } catch (error) {
+      console.error("Get inspections error:", error);
+      res.status(500).json({ message: "Failed to fetch inspections" });
+    }
+  });
+
+  // Get all orders for reports
+  app.get("/api/orders", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const orders = await storage.getRecentOrders(50); // Get more orders for reports
+      res.json(orders);
+    } catch (error) {
+      console.error("Get orders error:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
   // Simplified report generation
   app.post("/api/reports/excel", requireAuth, async (req: Request, res: Response) => {
     try {
-      // Simulate report generation
-      const reportUrl = "https://example.com/report.xlsx";
-      res.json({ reportUrl });
+      const { orderId } = req.body;
+      const inspections = await storage.getInspectionsByOrder(orderId);
+      
+      // Create a simple CSV-style report data
+      const reportData = {
+        orderNumber: `Order-${orderId}`,
+        totalInspections: inspections.length,
+        gradeDistribution: {
+          A: inspections.filter(i => i.grade === 'A').length,
+          B: inspections.filter(i => i.grade === 'B').length,
+          C: inspections.filter(i => i.grade === 'C').length,
+          D: inspections.filter(i => i.grade === 'D').length,
+        },
+        inspections: inspections.map(i => ({
+          imei: i.imei,
+          grade: i.grade,
+          status: i.status,
+          brand: i.phoneSpecs?.brand || 'Unknown',
+          model: i.phoneSpecs?.model || 'Unknown'
+        }))
+      };
+      
+      res.json({ 
+        reportUrl: `data:application/json;base64,${Buffer.from(JSON.stringify(reportData, null, 2)).toString('base64')}`,
+        reportData 
+      });
     } catch (error) {
       console.error("Excel report error:", error);
       res.status(500).json({ message: "Failed to generate report" });

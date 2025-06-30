@@ -47,9 +47,13 @@ export class DatabaseStorage implements IStorage {
 
   // Order operations
   async createOrder(orderData: InsertOrder & { createdBy: number }): Promise<Order> {
+    const orderNumber = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
     const [order] = await db
       .insert(orders)
-      .values(orderData)
+      .values({
+        ...orderData,
+        orderNumber,
+      })
       .returning();
     return order;
   }

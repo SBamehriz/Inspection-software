@@ -19,46 +19,41 @@ export default function Reports() {
   const [gradeFilter, setGradeFilter] = useState("");
   const { toast } = useToast();
 
-  // Mock data for demonstration - in real app, this would come from API
-  const mockReports = [
-    {
-      id: 1,
-      orderNumber: "ORD-2024-001",
-      createdAt: "2024-01-15",
-      status: "completed",
-      totalPhones: 15,
-      gradeDistribution: { A: 8, B: 5, C: 2, D: 0 },
-      inspector: "John Doe",
-    },
-    {
-      id: 2,
-      orderNumber: "ORD-2024-002",
-      createdAt: "2024-01-14",
-      status: "active",
-      totalPhones: 8,
-      expectedTotal: 20,
-      gradeDistribution: { A: 3, B: 4, C: 1, D: 0 },
-      inspector: "Jane Smith",
-    },
-  ];
+  // Fetch orders from API
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
+    queryKey: ["/api/orders"],
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/user"],
+  });
 
   const generateExcelReport = useMutation({
     mutationFn: async (orderId: number) => {
       const response = await apiRequest("POST", "/api/reports/excel", { orderId });
-      return response.json();
+      return response;
     },
     onSuccess: (result) => {
       toast({
         title: "Report Generated",
-        description: "Excel report has been generated and uploaded to cloud storage.",
+        description: "Report data generated successfully.",
       });
-      // In a real app, you might open the report URL
-      window.open(result.reportUrl, '_blank');
+      
+      // Create downloadable file with the report data
+      const blob = new Blob([JSON.stringify(result.reportData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `inspection-report-${orderId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     },
     onError: (error) => {
       toast({
         title: "Generation Failed",
-        description: error.message || "Failed to generate Excel report",
+        description: error.message || "Failed to generate report",
         variant: "destructive",
       });
     },
@@ -88,10 +83,8 @@ export default function Reports() {
   };
 
   const handleContinueOrder = (orderNumber: string) => {
-    toast({
-      title: "Continue Order",
-      description: `Continuing inspection for ${orderNumber}`,
-    });
+    // Store order number in localStorage for station selection
+    localStorage.setItem("currentOrderNumber", orderNumber);
     setLocation("/station-selection");
   };
 
@@ -186,7 +179,7 @@ export default function Reports() {
                     <SelectValue placeholder="All Grades" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Grades</SelectItem>
+                    <SelectItem value="all">All Grades</SelectItem>
                     <SelectItem value="A">Grade A</SelectItem>
                     <SelectItem value="B">Grade B</SelectItem>
                     <SelectItem value="C">Grade C</SelectItem>
@@ -238,70 +231,86 @@ export default function Reports() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockReports.map((report) => (
-                    <TableRow key={report.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-gray-900">{report.orderNumber}</div>
-                          <div className="text-sm text-gray-500">Inspector: {report.inspector}</div>
-                        </div>
+                  {ordersLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        Loading orders...
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900">
-                        {new Date(report.createdAt).toLocaleDateString()}
+                    </TableRow>
+                  ) : orders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        No orders found. Create your first order to see reports here.
                       </TableCell>
-                      <TableCell className="text-sm text-gray-900">
-                        {report.status === "completed" 
-                          ? `${report.totalPhones} phones`
-                          : `${report.totalPhones}/${report.expectedTotal} phones`
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {getGradeBadges(report.gradeDistribution)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(report.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          {report.status === "completed" ? (
-                            <>
+                    </TableRow>
+                  ) : (
+                    orders.map((order: any) => (
+                      <TableRow key={order.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-gray-900">{order.orderNumber}</div>
+                            <div className="text-sm text-gray-500">Inspector: {user?.username || 'Unknown'}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-900">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-900">
+                          {order.status === "completed" 
+                            ? `${order.completedQuantity || 0} phones`
+                            : `0/${order.expectedQuantity} phones`
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            <Badge className="bg-gray-100 text-gray-800">
+                              No inspections yet
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(order.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            {order.status === "completed" ? (
+                              <>
+                                <Button
+                                  onClick={() => handleViewOrder(order.orderNumber)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-astora-red hover:text-astora-dark-red hover:bg-red-50"
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View
+                                </Button>
+                                <Button
+                                  onClick={() => generateExcelReport.mutate(order.id)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                  disabled={generateExcelReport.isPending}
+                                >
+                                  <Download className="w-4 h-4 mr-1" />
+                                  Export
+                                </Button>
+                              </>
+                            ) : (
                               <Button
-                                onClick={() => handleViewOrder(report.orderNumber)}
+                                onClick={() => handleContinueOrder(order.orderNumber)}
                                 variant="ghost"
                                 size="sm"
                                 className="text-astora-red hover:text-astora-dark-red hover:bg-red-50"
                               >
                                 <Eye className="w-4 h-4 mr-1" />
-                                View
+                                Continue
                               </Button>
-                              <Button
-                                onClick={() => generateExcelReport.mutate(report.id)}
-                                variant="ghost"
-                                size="sm"
-                                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                disabled={generateExcelReport.isPending}
-                              >
-                                <Download className="w-4 h-4 mr-1" />
-                                Export
-                              </Button>
-                            </>
-                          ) : (
-                            <Button
-                              onClick={() => handleContinueOrder(report.orderNumber)}
-                              variant="ghost"
-                              size="sm"
-                              className="text-astora-red hover:text-astora-dark-red hover:bg-red-50"
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              Continue
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
