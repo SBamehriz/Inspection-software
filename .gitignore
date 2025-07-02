@@ -1,6 +1,25 @@
-node_modules
-dist
+# Node dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Env files
+*.env
+
+# OS / editor cruft
 .DS_Store
-server/public
+
+# Local SQLite DB
+dev.sqlite
+
+# Public assets (if you’re generating into server/public)
+server/public/
+
+# Vite config backups
 vite.config.ts.*
+
+# Logs and archives
+*.log
 *.tar.gz
+    
