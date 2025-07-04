@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: astora
+      POSTGRES_PASSWORD: astora
+      POSTGRES_DB: astora_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./server
+    ports:
+      - "4000:4000"           # or whatever your app listens on
+    environment:
+      DATABASE_URL: postgres://astora:astora@db:5432/astora_dev
+    depends_on:
+      - db
+    volumes:
+      - ./server:/app         # hot-reload your code during dev
+
+volumes:
+  db_data:
