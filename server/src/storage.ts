@@ -1,4 +1,12 @@
-import { users, orders, inspections, type User, type InsertUser, type Order, type InsertOrder, type Inspection, type InsertInspection } from "../../shared/schema";
+import { users, orders, inspections } from "../../shared/schema";
+import type {
+  User,
+  InsertUser,
+  Order,
+  InsertOrder,
+  Inspection,
+  InsertInspection
+} from "../../shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, or } from "drizzle-orm";
 

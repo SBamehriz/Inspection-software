@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "tsc",
+    "build": "tsc -p server/tsconfig.json",
+    "start": "node server/dist/index.js",
     "migrate:gen": "drizzle-kit generate --config ./drizzle.config.mjs",
     "migrate:push": "drizzle-kit push --config ./drizzle.config.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
